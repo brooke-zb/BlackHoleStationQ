@@ -1,0 +1,51 @@
+quarkus:
+  # 开启控制台颜色
+  console:
+    color: true
+  live-reload:
+    instrumentation: true
+  banner:
+    enabled: false
+
+  # 数据源
+  datasource:
+    devservices:
+      enabled: false
+    db-kind: mysql
+    reactive:
+      url: vertx-reactive:mysql://localhost:3306/black_hole_station?useSSL=false&serverTimezone=Asia/ShangHai
+    username: java
+    password: 12345678
+  hibernate-orm:
+    log:
+      sql: true
+      bind-parameters: true
+
+  # HTTP
+  http:
+    port: 80
+    cors:
+      ~: true
+      origins:
+        - http://localhost
+      access-control-allow-credentials: true
+      access-control-max-age: 24H
+
+  # 缓存
+  cache:
+    caffeine:
+      temp-auth-token-cache:
+        expire-after-write: 10S
+      persistent-auth-token-cache:
+        expire-after-write: P7D
+
+  # 参数验证
+  hibernate-validator:
+    fail-fast: true
+
+csrf:
+  token-secret: KZv$y;Fr[Z,,|()x(kxb^UaE:CFA=:]&
+  include-prefixes:
+    - /
+  exclude-paths:
+    - /account/token
