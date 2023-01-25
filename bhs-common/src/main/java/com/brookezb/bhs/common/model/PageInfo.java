@@ -14,7 +14,7 @@ public class PageInfo<T> {
     /**
      * 当前页
      */
-    private int currentPage;
+    private int pageNum;
 
     /**
      * 每页的数量
@@ -24,7 +24,7 @@ public class PageInfo<T> {
     /**
      * 总页数
      */
-    private int pageCount;
+    private int pages;
 
     /**
      * 总记录数
@@ -36,18 +36,18 @@ public class PageInfo<T> {
      */
     private List<T> list;
 
-    public PageInfo(int currentPage, int pageSize, long total) {
-        this(currentPage, pageSize, total, null);
+    public PageInfo(int pageNum, int pageSize, long total) {
+        this(pageNum, pageSize, total, null);
     }
 
-    public PageInfo(int currentPage, int pageSize, long total, List<T> list) {
-        this(currentPage, pageSize, (int) Math.ceil((double) total / pageSize), total, list);
+    public PageInfo(int pageNum, int pageSize, long total, List<T> list) {
+        this(pageNum, pageSize, (int) Math.ceil((double) total / pageSize), total, list);
     }
 
-    public PageInfo(int currentPage, int pageSize, int pageCount, long total, List<T> list) {
-        this.currentPage = currentPage;
+    public PageInfo(int pageNum, int pageSize, int pages, long total, List<T> list) {
+        this.pageNum = pageNum;
         this.pageSize = pageSize;
-        this.pageCount = pageCount;
+        this.pages = pages;
         this.total = total;
         this.list = list;
     }

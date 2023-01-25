@@ -2,10 +2,13 @@ package com.brookezb.bhs.service.service;
 
 import com.brookezb.bhs.common.constant.AppConstants;
 import com.brookezb.bhs.common.dto.ArticleInfoView;
+import com.brookezb.bhs.common.dto.ArticleTimelineView;
 import com.brookezb.bhs.common.dto.ArticleView;
+import com.brookezb.bhs.common.entity.Article;
 import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.service.repository.ArticleRepository;
 import com.brookezb.bhs.service.repository.TagRelationRepository;
+import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -98,20 +101,55 @@ public class ArticleService {
         );*/
     }
 
-    public Uni<PageInfo<ArticleInfoView>> findListByCategoryId(Long cid, int page) {
+    public Uni<PageInfo<ArticleInfoView>> findListByCategoryId(Long cid, int page, Article.Status status) {
         final int queryPage = page - 1; // 页码从0开始
-        var query = articleRepository.find("category.cid", cid);
+        var query = articleRepository.find("category.cid = ?1 and status = ?2", Sort.descending("created"), cid, status);
 
         // 获取总数和分页数据属于两个异步操作，而一个session无法同时执行两个异步操作，所以需要使用chain
         // 所以不能使用Uni.combine().all().unis()
         return query.count()
-                .chain(total -> Uni.createFrom().item(new PageInfo<ArticleInfoView>(page, AppConstants.PAGE_SIZE, total)))
-                .chain(pageInfo -> query.page(queryPage, AppConstants.PAGE_SIZE)
+                .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
                         .project(ArticleInfoView.class).list()
-                        .chain(articleViewList -> {
-                            pageInfo.setList(articleViewList);
-                            return Uni.createFrom().item(pageInfo);
-                        })
+                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                );
+    }
+
+    public Uni<PageInfo<ArticleInfoView>> findListByUserId(Long uid, int page, Article.Status status) {
+        final int queryPage = page - 1; // 页码从0开始
+        var query = articleRepository.find("user.uid = ?1 and status = ?2", Sort.descending("created"), uid, status);
+
+        return query.count()
+                .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
+                        .project(ArticleInfoView.class).list()
+                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                );
+    }
+
+    public Uni<PageInfo<ArticleInfoView>> findListByTag(String tag, int page, Article.Status status) {
+        final int queryPage = page - 1; // 页码从0开始
+        var query = tagRelationRepository.find("""
+                select tr.article.aid
+                    from TagRelation tr
+                where tr.tag.name = ?1
+                    and tr.article.status = ?2
+                """, Sort.descending("created"), tag, status);
+
+        return query.count()
+                .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
+                        .project(Long.class).list()
+                        .chain(aids -> articleRepository.find("aid in ?1", aids).project(ArticleInfoView.class).list())
+                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                );
+    }
+
+    public Uni<PageInfo<ArticleTimelineView>> findListByTimeline(int page) {
+        final int queryPage = page - 1; // 页码从0开始
+        var query = articleRepository.find("status", Sort.descending("created"), Article.Status.PUBLISHED);
+
+        return query.count()
+                .chain(total -> query.page(queryPage, AppConstants.TIMELINE_SIZE)
+                        .project(ArticleTimelineView.class).list()
+                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
                 );
     }
 }
