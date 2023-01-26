@@ -35,7 +35,7 @@ quarkus:
   cache:
     caffeine:
       temp-auth-token-cache:
-        expire-after-write: 10S
+        expire-after-write: 12H
       persistent-auth-token-cache:
         expire-after-write: P7D
 
@@ -49,3 +49,8 @@ csrf:
     - /
   exclude-paths:
     - /account/token
+
+server:
+  cookie:
+    domain: localhost
+    secure: false

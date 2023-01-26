@@ -12,6 +12,7 @@ public class AppConstants {
     public static final String AUTH_TOKEN_HEADER = "Authorization";
 
     public static final int PAGE_SIZE = 10;
-
     public static final int TIMELINE_SIZE = 20;
+
+    public static final String CONTEXT_USER_KEY = "bhs.login.user";
 }
