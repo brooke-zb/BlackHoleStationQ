@@ -2,6 +2,7 @@ package com.brookezb.bhs.app.mapper;
 
 import com.brookezb.bhs.common.model.R;
 import io.quarkus.logging.Log;
+import io.quarkus.security.UnauthorizedException;
 import io.smallrye.mutiny.Uni;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
@@ -27,6 +28,13 @@ public class GlobalExceptionMapper {
     public Uni<Response> badRequest(BadRequestException e) {
         Log.error(e.getMessage(), e);
         return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).entity(R.fail(e.getMessage())).build());
+    }
+
+    // 401
+    @ServerExceptionMapper
+    public Uni<Response> unauthorized(UnauthorizedException e) {
+        Log.error(e.getMessage(), e);
+        return Uni.createFrom().item(Response.status(Response.Status.UNAUTHORIZED).entity(R.fail(e.getMessage())).build());
     }
 
     // 403

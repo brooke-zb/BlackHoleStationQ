@@ -9,6 +9,7 @@ import com.brookezb.bhs.service.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CaffeineCache;
+import io.quarkus.security.UnauthorizedException;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
@@ -33,12 +34,18 @@ public class AccountResource {
     @CacheName("persistent-auth-token-cache")
     Cache persistentAuthTokenCache;
 
+    @Context
+    RoutingContext routingContext;
+
     @POST
     @Path("/token")
     public Uni<R<?>> login(LoginView loginBody, HttpServerResponse response) {
         return userService.checkUser(loginBody.getUsername(), loginBody.getPassword())
-                .onItem().ifNull().failWith(() -> new WebApplicationException("用户名或密码错误", 401))
+                .onItem().ifNull().failWith(() -> new UnauthorizedException("用户名或密码错误"))
                 .map(user -> {
+                    // 设置用户以便发放CSRF token
+                    routingContext.put(AppConstants.CONTEXT_USER_KEY, user);
+
                     var uuid = UUID.randomUUID();
                     var cookie = CookieUtil.from("Authorization", uuid.toString())
                             .setHttpOnly(true);
@@ -61,7 +68,7 @@ public class AccountResource {
 
     @GET
     @Path("")
-    public Uni<R<User>> info(@RestCookie String Authorization, @Context RoutingContext routingContext, HttpServerResponse response) {
+    public Uni<R<User>> info(@RestCookie String Authorization, HttpServerResponse response) {
         if (Authorization == null) {
             return Uni.createFrom().item(R.fail("未登录"));
         }

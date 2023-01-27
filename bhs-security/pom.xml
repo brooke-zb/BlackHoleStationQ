@@ -21,7 +21,12 @@
     <dependencies>
         <dependency>
             <groupId>com.brookezb</groupId>
-            <artifactId>bhs-common</artifactId>
+            <artifactId>bhs-service</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-reactive</artifactId>
         </dependency>
     </dependencies>
 

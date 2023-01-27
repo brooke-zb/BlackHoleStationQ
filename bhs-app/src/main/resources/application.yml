@@ -50,7 +50,7 @@ csrf:
   exclude-paths:
     - /account/token
 
-server:
+app:
   cookie:
     domain: localhost
     secure: false
