@@ -10,7 +10,6 @@ import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CaffeineCache;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.http.Cookie;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 import org.jboss.resteasy.reactive.RestCookie;
@@ -38,7 +37,7 @@ public class AccountResource {
     @Path("/token")
     public Uni<R<?>> login(LoginView loginBody, HttpServerResponse response) {
         return userService.checkUser(loginBody.getUsername(), loginBody.getPassword())
-                .onItem().ifNull().failWith(() -> new RuntimeException("用户名或密码错误"))
+                .onItem().ifNull().failWith(() -> new WebApplicationException("用户名或密码错误", 401))
                 .map(user -> {
                     var uuid = UUID.randomUUID();
                     var cookie = CookieUtil.from("Authorization", uuid.toString())

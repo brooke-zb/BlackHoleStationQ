@@ -35,7 +35,7 @@ quarkus:
   cache:
     caffeine:
       temp-auth-token-cache:
-        expire-after-write: 12H
+        expire-after-access: 3H
       persistent-auth-token-cache:
         expire-after-write: P7D
 

@@ -31,6 +31,7 @@ public class User {
     /**
      * 用户名
      */
+    @Column(unique = true)
     private String name;
 
     /**
@@ -41,6 +42,7 @@ public class User {
     /**
      * 邮箱
      */
+    @Column(unique = true)
     private String mail;
 
     /**
