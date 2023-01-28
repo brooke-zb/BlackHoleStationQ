@@ -2,6 +2,7 @@ package com.brookezb.bhs.app.resource;
 
 import com.brookezb.bhs.common.constant.AppConstants;
 import com.brookezb.bhs.common.dto.LoginView;
+import com.brookezb.bhs.common.dto.PasswordUpdateView;
 import com.brookezb.bhs.common.dto.UserUpdateView;
 import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.common.model.R;
@@ -103,8 +104,20 @@ public class AccountResource {
      */
     @PUT
     @Path("")
-    public Uni<R<Void>> update(UserUpdateView user) {
-        return userService.update(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), user)
-                .map(ignored -> R.okWithMsg("信息更新成功"));
+    public Uni<R<Void>> update(UserUpdateView updateBody) {
+        return userService.update(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), updateBody)
+                .replaceWith(() -> R.okWithMsg("信息更新成功"));
+    }
+
+    /**
+     * 更改用户密码
+     *
+     * @param updateBody 旧密码和新密码
+     */
+    @PATCH
+    @Path("/password")
+    public Uni<R<Void>> updatePassword(PasswordUpdateView updateBody) { // TODO: validate request body
+        return userService.updatePassword(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), updateBody)
+                .replaceWith(() -> R.okWithMsg("密码更新成功"));
     }
 }

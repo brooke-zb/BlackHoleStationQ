@@ -1,5 +1,6 @@
 package com.brookezb.bhs.service.service;
 
+import com.brookezb.bhs.common.dto.PasswordUpdateView;
 import com.brookezb.bhs.common.dto.UserUpdateView;
 import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.service.exception.ServiceQueryException;
@@ -13,6 +14,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.security.SecureRandom;
 
 /**
  * @author brooke_zb
@@ -32,8 +34,7 @@ public class UserService {
     public Uni<User> checkUser(String username, String password) {
         return userRepository.find("name", username)
                 .firstResult()
-                // 由于BCrypt算法耗时较长，会阻塞eventloop，所以放在worker线程中执行
-                .emitOn(Infrastructure.getDefaultWorkerPool())
+                .emitOn(Infrastructure.getDefaultWorkerPool()) // 由于BCrypt算法耗时较长，会阻塞eventloop，所以放在worker线程中执行
                 .onItem().ifNotNull().transformToUni(user -> {
                     if (BCrypt.checkpw(password, user.getPassword())) {
                         return Uni.createFrom().item(user);
@@ -51,7 +52,6 @@ public class UserService {
     @CacheInvalidate(cacheName = "user-cache")
     public Uni<Void> update(@CacheKey Long id, UserUpdateView user) {
         return userRepository.findById(id)
-                .onItem().ifNotNull()
                 .call(updateUser -> userRepository.find("select 1 from User u where u.name = ?1 and u.uid != ?2", user.getName(), updateUser.getUid())
                         .project(Integer.class)
                         .firstResult()
@@ -73,6 +73,22 @@ public class UserService {
                         u.setLink(user.getLink());
                     }
                     return userRepository.persistAndFlush(u);
+                })
+                .replaceWithVoid();
+    }
+
+    private final SecureRandom random = new SecureRandom();
+
+    @CacheInvalidate(cacheName = "user-cache")
+    public Uni<Void> updatePassword(@CacheKey Long id, PasswordUpdateView updateView) {
+        return userRepository.findById(id)
+                .emitOn(Infrastructure.getDefaultWorkerPool()) // 更换worker线程执行BCrypt算法
+                .chain(updateUser -> {
+                    if (!BCrypt.checkpw(updateView.getOldPassword(), updateUser.getPassword())) {
+                        return Uni.createFrom().failure(new ServiceQueryException("旧密码错误"));
+                    }
+                    updateUser.setPassword(BCrypt.hashpw(updateView.getNewPassword(), BCrypt.gensalt(10, random)));
+                    return userRepository.persistAndFlush(updateUser);
                 })
                 .replaceWithVoid();
     }

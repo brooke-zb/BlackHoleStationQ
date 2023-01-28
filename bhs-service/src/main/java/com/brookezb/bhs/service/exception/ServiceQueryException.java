@@ -5,10 +5,10 @@ package com.brookezb.bhs.service.exception;
  */
 public class ServiceQueryException extends RuntimeException {
     public ServiceQueryException(String message) {
-        super(message);
+        super(message, null, false, false);
     }
 
     public ServiceQueryException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, cause, false, false);
     }
 }
