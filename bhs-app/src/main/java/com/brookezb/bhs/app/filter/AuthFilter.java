@@ -1,6 +1,7 @@
 package com.brookezb.bhs.app.filter;
 
 import com.brookezb.bhs.common.constant.AppConstants;
+import com.brookezb.bhs.common.util.CookieUtil;
 import com.brookezb.bhs.service.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
@@ -48,6 +49,11 @@ public class AuthFilter {
                 .transformToUni(userService::findById)
                 .invoke(user -> {
                     if (user == null || !user.isEnabled()) {
+                        // 移除无效的cookie
+                        routingContext.response().addCookie(CookieUtil.from("Authorization", "")
+                                .setMaxAge(0L)
+                                .setHttpOnly(true)
+                        );
                         return;
                     }
                     routingContext.put(AppConstants.CONTEXT_USER_KEY, user);

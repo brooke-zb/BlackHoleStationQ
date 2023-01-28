@@ -2,6 +2,7 @@ package com.brookezb.bhs.app.resource;
 
 import com.brookezb.bhs.common.constant.AppConstants;
 import com.brookezb.bhs.common.dto.LoginView;
+import com.brookezb.bhs.common.dto.UserUpdateView;
 import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.common.util.CookieUtil;
@@ -39,7 +40,7 @@ public class AccountResource {
 
     @POST
     @Path("/token")
-    public Uni<R<?>> login(LoginView loginBody, HttpServerResponse response) {
+    public Uni<R<Void>> login(LoginView loginBody, HttpServerResponse response) {
         return userService.checkUser(loginBody.getUsername(), loginBody.getPassword())
                 .onItem().ifNull().failWith(() -> new UnauthorizedException("用户名或密码错误"))
                 .map(user -> {
@@ -56,14 +57,19 @@ public class AccountResource {
                         tempAuthTokenCache.as(CaffeineCache.class).put(uuid.toString(), CompletableFuture.completedFuture(user.getUid()));
                     }
                     response.addCookie(cookie);
-                    return R.ok(user);
+                    return R.okWithMsg("登录成功");
                 });
     }
 
     @DELETE
     @Path("/token")
-    public Uni<R<?>> logout() {
-        return Uni.createFrom().item(R.ok());
+    public Uni<R<Void>> logout(HttpServerResponse response) {
+        response.addCookie(CookieUtil.from("Authorization", "")
+                .setMaxAge(0L)
+                .setHttpOnly(true)
+        );
+        routingContext.remove(AppConstants.CONTEXT_USER_KEY);
+        return Uni.createFrom().item(R.okWithMsg("成功退出登录"));
     }
 
     @GET
@@ -74,12 +80,15 @@ public class AccountResource {
         }
         User currentUser = routingContext.get(AppConstants.CONTEXT_USER_KEY);
         if (currentUser == null) {
-            response.addCookie(CookieUtil.from("Authorization", "")
-                    .setMaxAge(0L)
-                    .setHttpOnly(true)
-            );
             return Uni.createFrom().item(R.fail("登录已过期"));
         }
         return Uni.createFrom().item(R.ok(currentUser));
+    }
+
+    @PUT
+    @Path("")
+    public Uni<R<Void>> update(UserUpdateView user) {
+        return userService.update(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), user)
+                .map(ignored -> R.okWithMsg("更新成功"));
     }
 }

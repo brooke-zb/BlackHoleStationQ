@@ -1,6 +1,7 @@
 package com.brookezb.bhs.app.mapper;
 
 import com.brookezb.bhs.common.model.R;
+import com.brookezb.bhs.service.exception.ServiceQueryException;
 import io.quarkus.logging.Log;
 import io.quarkus.security.UnauthorizedException;
 import io.smallrye.mutiny.Uni;
@@ -24,8 +25,8 @@ public class GlobalExceptionMapper {
     }
 
     // 400
-    @ServerExceptionMapper
-    public Uni<Response> badRequest(BadRequestException e) {
+    @ServerExceptionMapper({BadRequestException.class, ServiceQueryException.class})
+    public Uni<Response> badRequest(Exception e) {
         Log.error(e.getMessage(), e);
         return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).entity(R.fail(e.getMessage())).build());
     }

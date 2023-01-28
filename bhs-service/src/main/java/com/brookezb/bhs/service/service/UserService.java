@@ -1,7 +1,11 @@
 package com.brookezb.bhs.service.service;
 
+import com.brookezb.bhs.common.dto.UserUpdateView;
 import com.brookezb.bhs.common.entity.User;
+import com.brookezb.bhs.service.exception.ServiceQueryException;
 import com.brookezb.bhs.service.repository.UserRepository;
+import io.quarkus.cache.CacheInvalidate;
+import io.quarkus.cache.CacheKey;
 import io.quarkus.cache.CacheResult;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
@@ -42,5 +46,34 @@ public class UserService {
     @CacheResult(cacheName = "user-cache")
     public Uni<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @CacheInvalidate(cacheName = "user-cache")
+    public Uni<Void> update(@CacheKey Long id, UserUpdateView user) {
+        return userRepository.findById(id)
+                .onItem().ifNotNull()
+                .call(updateUser -> userRepository.find("select 1 from User u where u.name = ?1 and u.uid != ?2", user.getName(), updateUser.getUid())
+                        .project(Integer.class)
+                        .firstResult()
+                        .onItem().ifNotNull().failWith(() -> new ServiceQueryException("该用户名已注册，请更换一个"))
+                )
+                .call(updateUser -> userRepository.find("select 1 from User u where u.mail = ?1 and u.uid != ?2", user.getMail(), updateUser.getUid())
+                        .project(Integer.class)
+                        .firstResult()
+                        .onItem().ifNotNull().failWith(() -> new ServiceQueryException("该邮箱已被注册，请更换一个"))
+                )
+                .chain(u -> {
+                    if (user.getName() != null) {
+                        u.setName(user.getName());
+                    }
+                    if (user.getMail() != null) {
+                        u.setMail(user.getMail());
+                    }
+                    if (user.getLink() != null) {
+                        u.setLink(user.getLink());
+                    }
+                    return userRepository.persistAndFlush(u);
+                })
+                .replaceWithVoid();
     }
 }

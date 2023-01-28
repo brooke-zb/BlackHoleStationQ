@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * API响应结果包装类
+ *
  * @author brooke_zb
  */
 @Data
@@ -22,12 +23,22 @@ public class R<T> {
     /**
      * 操作成功，返回消息
      */
-    public static <T> R<T> ok() {
-        return ok(null, "请求成功");
+    public static R<Void> ok() {
+        return okWithMsg("请求成功");
+    }
+
+    /**
+     * 操作成功，返回消息
+     *
+     * @param msg 返回消息
+     */
+    public static R<Void> okWithMsg(String msg) {
+        return ok(null, msg);
     }
 
     /**
      * 操作成功，返回数据
+     *
      * @param data 数据
      */
     public static <T> R<T> ok(T data) {
@@ -36,8 +47,9 @@ public class R<T> {
 
     /**
      * 操作成功，返回数据
+     *
      * @param data 数据
-     * @param msg 返回消息
+     * @param msg  返回消息
      */
     public static <T> R<T> ok(T data, String msg) {
         return new R<>(true, data, msg);
@@ -52,6 +64,7 @@ public class R<T> {
 
     /**
      * 操作失败，返回消息
+     *
      * @param msg 返回消息
      */
     public static <T> R<T> fail(String msg) {
