@@ -37,7 +37,7 @@ quarkus:
       temp-auth-token-cache:
         expire-after-access: 3H
       persistent-auth-token-cache:
-        expire-after-write: P7D
+        expire-after-access: P7D
 
   # 参数验证
   hibernate-validator:

@@ -37,10 +37,17 @@ public class AccountResource {
 
     @Context
     RoutingContext routingContext;
+    @Context
+    HttpServerResponse response;
 
+    /**
+     * 登录接口
+     *
+     * @param loginBody 用户名和密码
+     */
     @POST
     @Path("/token")
-    public Uni<R<Void>> login(LoginView loginBody, HttpServerResponse response) {
+    public Uni<R<Void>> login(LoginView loginBody) {
         return userService.checkUser(loginBody.getUsername(), loginBody.getPassword())
                 .onItem().ifNull().failWith(() -> new UnauthorizedException("用户名或密码错误"))
                 .map(user -> {
@@ -61,9 +68,12 @@ public class AccountResource {
                 });
     }
 
+    /**
+     * 退出登录接口
+     */
     @DELETE
     @Path("/token")
-    public Uni<R<Void>> logout(HttpServerResponse response) {
+    public Uni<R<Void>> logout() {
         response.addCookie(CookieUtil.from("Authorization", "")
                 .setMaxAge(0L)
                 .setHttpOnly(true)
@@ -72,9 +82,12 @@ public class AccountResource {
         return Uni.createFrom().item(R.okWithMsg("成功退出登录"));
     }
 
+    /**
+     * 获取当前登录用户信息
+     */
     @GET
     @Path("")
-    public Uni<R<User>> info(@RestCookie String Authorization, HttpServerResponse response) {
+    public Uni<R<User>> info(@RestCookie String Authorization) {
         if (Authorization == null) {
             return Uni.createFrom().item(R.fail("未登录"));
         }
@@ -85,10 +98,13 @@ public class AccountResource {
         return Uni.createFrom().item(R.ok(currentUser));
     }
 
+    /**
+     * 更新用户信息
+     */
     @PUT
     @Path("")
     public Uni<R<Void>> update(UserUpdateView user) {
         return userService.update(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), user)
-                .map(ignored -> R.okWithMsg("更新成功"));
+                .map(ignored -> R.okWithMsg("信息更新成功"));
     }
 }

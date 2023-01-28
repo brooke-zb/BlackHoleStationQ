@@ -76,7 +76,7 @@ public class CSRFFilter {
      * 通过检查cookie决定是否需要设置CSRF token
      */
     @ServerResponseFilter
-    public void issueToken(ContainerResponseContext responseContext) throws IOException {
+    public void issueToken() throws IOException {
         // 在登录用户没有可用token的情况下生成新的token
         var routingData = routing.data();
         if (routingData.containsKey(AppConstants.CONTEXT_USER_KEY) && !routingData.containsKey(CONTEXT_PASS_KEY)) {
