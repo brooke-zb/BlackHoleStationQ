@@ -43,6 +43,12 @@ quarkus:
   hibernate-validator:
     fail-fast: true
 
+  # 日志记录
+  log:
+    category:
+      "com.brookezb.bhs.app.filter.APILoggingFilter":
+        level: DEBUG
+
 csrf:
   token-secret: KZv$y;Fr[Z,,|()x(kxb^UaE:CFA=:]&
   include-prefixes:
