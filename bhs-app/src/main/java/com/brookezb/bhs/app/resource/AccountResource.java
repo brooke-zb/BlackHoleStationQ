@@ -7,6 +7,8 @@ import com.brookezb.bhs.common.dto.UserUpdateView;
 import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.common.util.CookieUtil;
+import com.brookezb.bhs.security.annotation.RequireLogin;
+import com.brookezb.bhs.security.annotation.RequirePermission;
 import com.brookezb.bhs.service.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
@@ -74,6 +76,7 @@ public class AccountResource {
      */
     @DELETE
     @Path("/token")
+    @RequireLogin
     public Uni<R<Void>> logout() {
         response.addCookie(CookieUtil.from("Authorization", "")
                 .setMaxAge(0L)
@@ -104,6 +107,7 @@ public class AccountResource {
      */
     @PUT
     @Path("")
+    @RequireLogin
     public Uni<R<Void>> update(UserUpdateView updateBody) {
         return userService.update(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), updateBody)
                 .replaceWith(() -> R.okWithMsg("信息更新成功"));
@@ -116,6 +120,7 @@ public class AccountResource {
      */
     @PATCH
     @Path("/password")
+    @RequireLogin
     public Uni<R<Void>> updatePassword(PasswordUpdateView updateBody) { // TODO: validate request body
         return userService.updatePassword(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), updateBody)
                 .replaceWith(() -> R.okWithMsg("密码更新成功"));

@@ -15,4 +15,5 @@ public class AppConstants {
     public static final int TIMELINE_SIZE = 20;
 
     public static final String CONTEXT_USER_KEY = "bhs.login.user";
+    public static final String CONTEXT_SECURITY_CHECKED_KEY = "bhs.security.checked";
 }
