@@ -6,7 +6,6 @@ import com.brookezb.bhs.security.annotation.PermitAll;
 import com.brookezb.bhs.security.annotation.RequireLogin;
 import com.brookezb.bhs.security.annotation.RequirePermission;
 import io.quarkus.arc.Priority;
-import io.quarkus.logging.Log;
 import io.quarkus.security.UnauthorizedException;
 import io.vertx.ext.web.RoutingContext;
 
@@ -16,7 +15,6 @@ import javax.interceptor.InvocationContext;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Context;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * @author brooke_zb
@@ -49,7 +47,6 @@ public class RequirePermissionInterceptor {
     }
 
     private Object checkPermission(InvocationContext context, RequirePermission anno) throws Exception {
-        Log.info("checking permission: " + Arrays.toString(anno.value()));
         var user = routing.<User>get(AppConstants.CONTEXT_USER_KEY);
 
         if (user == null) {

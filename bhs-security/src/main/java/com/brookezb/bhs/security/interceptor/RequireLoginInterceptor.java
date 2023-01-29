@@ -48,7 +48,6 @@ public class RequireLoginInterceptor {
     }
 
     private Object checkLogin(InvocationContext context) throws Exception {
-        Log.info("checking login");
         var user = routing.<User>get(AppConstants.CONTEXT_USER_KEY);
         if (user == null) {
             throw new UnauthorizedException("未登录，请登录后再操作");
