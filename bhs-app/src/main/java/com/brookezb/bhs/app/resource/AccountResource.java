@@ -8,7 +8,6 @@ import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.common.util.CookieUtil;
 import com.brookezb.bhs.security.annotation.RequireLogin;
-import com.brookezb.bhs.security.annotation.RequirePermission;
 import com.brookezb.bhs.service.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
@@ -20,6 +19,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.jboss.resteasy.reactive.RestCookie;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -50,7 +50,7 @@ public class AccountResource {
      */
     @POST
     @Path("/token")
-    public Uni<R<Void>> login(LoginView loginBody) {
+    public Uni<R<Void>> login(@Valid LoginView loginBody) {
         return userService.checkUser(loginBody.getUsername(), loginBody.getPassword())
                 .onItem().ifNull().failWith(() -> new UnauthorizedException("用户名或密码错误"))
                 .map(user -> {
@@ -121,7 +121,7 @@ public class AccountResource {
     @PATCH
     @Path("/password")
     @RequireLogin
-    public Uni<R<Void>> updatePassword(PasswordUpdateView updateBody) { // TODO: validate request body
+    public Uni<R<Void>> updatePassword(@Valid PasswordUpdateView updateBody) {
         return userService.updatePassword(routingContext.<User>get(AppConstants.CONTEXT_USER_KEY).getUid(), updateBody)
                 .replaceWith(() -> R.okWithMsg("密码更新成功"));
     }
