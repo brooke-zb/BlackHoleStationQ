@@ -30,6 +30,7 @@
         <snowflake.version>1.0.6</snowflake.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <commons-io.version>2.11.0</commons-io.version>
+        <sensitive-word.version>0.2.0</sensitive-word.version>
     </properties>
 
     <dependencyManagement>
@@ -85,6 +86,13 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
+            </dependency>
+
+            <!-- Sensitive Word -->
+            <dependency>
+                <groupId>com.github.houbb</groupId>
+                <artifactId>sensitive-word</artifactId>
+                <version>${sensitive-word.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
