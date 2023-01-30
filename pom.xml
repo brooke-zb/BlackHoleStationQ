@@ -13,6 +13,7 @@
         <module>bhs-common</module>
         <module>bhs-service</module>
         <module>bhs-security</module>
+        <module>bhs-mail</module>
     </modules>
 
     <properties>
@@ -28,6 +29,7 @@
         <lombok.version>1.18.24</lombok.version>
         <snowflake.version>1.0.6</snowflake.version>
         <jbcrypt.version>0.4</jbcrypt.version>
+        <commons-io.version>2.11.0</commons-io.version>
     </properties>
 
     <dependencyManagement>
@@ -58,6 +60,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.brookezb</groupId>
+                <artifactId>bhs-mail</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- SnowFlake ID Generator -->
             <dependency>
                 <groupId>com.github.yitter</groupId>
@@ -70,6 +78,13 @@
                 <groupId>org.mindrot</groupId>
                 <artifactId>jbcrypt</artifactId>
                 <version>${jbcrypt.version}</version>
+            </dependency>
+
+            <!-- Commons IO -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
