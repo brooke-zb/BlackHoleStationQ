@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author brooke_zb
  */
-@ConfigMapping(prefix = "csrf")
+@ConfigMapping(prefix = "bhs.security.csrf")
 public interface CSRFConfig {
     @WithName("token-secret")
     @WithDefault("o4$j04=?lwi`eZ#w`L1/QmTQkjV9e=}l")

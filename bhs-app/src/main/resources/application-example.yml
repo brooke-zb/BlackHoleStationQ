@@ -1,0 +1,73 @@
+quarkus:
+  # 数据源
+  datasource:
+    devservices:
+      enabled: false
+    db-kind: mysql
+    reactive:
+      url: vertx-reactive:mysql://localhost:3306/black_hole_station?useSSL=false
+    username: example
+    password: 12345678
+  hibernate-orm:
+    log:
+      sql: true
+      bind-parameters: true
+
+  # HTTP
+  http:
+    port: 80
+    cors:
+      ~: true
+      origins:
+        - https://example.com
+      access-control-allow-credentials: true
+      access-control-max-age: 24H
+
+  # 缓存
+  cache:
+    caffeine:
+      temp-auth-token-cache:
+        expire-after-access: 3H
+      persistent-auth-token-cache:
+        expire-after-access: P7D
+
+  # 参数验证
+  hibernate-validator:
+    fail-fast: true
+
+  # 日志记录
+  log:
+    category:
+      "com.brookezb.bhs.app.filter.APILoggingFilter":
+        level: DEBUG
+
+  # 邮件服务
+  mailer:
+    host: smtp.example.com
+    port: 465
+    login: REQUIRED
+    username: admin
+    password: 123456
+    from: noreply@example.com
+    ssl: true
+    start-tls: REQUIRED
+
+# 应用设置
+bhs:
+  security:
+    csrf:
+      token-secret: aTokenSecretShouldAtLeast32Chars
+      include-prefixes:
+        - /account
+        - /admin
+      exclude-paths:
+        - /account/token
+
+  mail:
+    admin-mail: admin@example.com
+    reply-subject: "[example]reply notice"
+    audit-subject: "[example]audit notice"
+
+  cookie:
+    domain: example.com
+    secure: true

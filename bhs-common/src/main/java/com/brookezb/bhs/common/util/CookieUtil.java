@@ -11,8 +11,8 @@ public class CookieUtil {
     private static final boolean secure;
 
     static {
-        domain = ConfigProvider.getConfig().getValue("app.cookie.domain", String.class);
-        secure = ConfigProvider.getConfig().getValue("app.cookie.secure", Boolean.class);
+        domain = ConfigProvider.getConfig().getValue("bhs.cookie.domain", String.class);
+        secure = ConfigProvider.getConfig().getValue("bhs.cookie.secure", Boolean.class);
     }
 
     public static Cookie from(String name, String value) {

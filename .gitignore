@@ -20,3 +20,7 @@ target/
 *.ipr
 
 import.sql
+
+### Quarkus YAML Configuration ###
+application-*.yml
+!application-example.yml
