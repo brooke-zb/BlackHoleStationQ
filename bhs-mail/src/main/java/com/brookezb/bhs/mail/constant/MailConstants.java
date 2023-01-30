@@ -6,7 +6,7 @@ package com.brookezb.bhs.mail.constant;
 public class MailConstants {
     public static final class Reply {
         public static final String TITLE = "回复通知";
-        public static final String CONTENT_FORMAT = "%1$s 在黑洞空间站上回复了你，点击下方链接查看！";
+        public static final String CONTENT_FORMAT = "%s 在黑洞空间站上回复了你，点击下方链接查看！";
     }
 
     public static final class Audit {

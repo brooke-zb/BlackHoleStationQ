@@ -1,10 +1,10 @@
 package com.brookezb.bhs.mail;
 
-import com.brookezb.bhs.mail.constant.MailConstants;
 import com.brookezb.bhs.mail.config.MailServiceConfig;
-import io.quarkus.logging.Log;
+import com.brookezb.bhs.mail.constant.MailConstants;
 import io.quarkus.mailer.Mail;
 import io.quarkus.mailer.reactive.ReactiveMailer;
+import lombok.extern.jbosslog.JBossLog;
 import org.apache.commons.io.IOUtils;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,6 +17,7 @@ import java.util.Map;
  * @author brooke_zb
  */
 @ApplicationScoped
+@JBossLog(topic = "bhs-mail")
 public class MailService {
     @Inject
     ReactiveMailer mailer;
@@ -43,8 +44,8 @@ public class MailService {
         );
         mailer.send(Mail.withHtml(to, config.replySubject(), parseTemplate(map)))
                 .subscribe().with(
-                        ignored -> Log.info("回复邮件发送成功"),
-                        failure -> Log.error("回复邮件发送失败: " + failure.getMessage())
+                        ignored -> log.info("reply mail send success"),
+                        failure -> log.error("reply mail send fail: " + failure.getMessage())
                 );
     }
 
@@ -57,8 +58,8 @@ public class MailService {
         );
         mailer.send(Mail.withHtml(config.adminMail(), config.auditSubject(), parseTemplate(map)))
                 .subscribe().with(
-                        ignored -> Log.info("审核邮件发送成功"),
-                        failure -> Log.error("审核邮件发送失败: " + failure.getMessage())
+                        ignored -> log.info("audit mail send success"),
+                        failure -> log.error("audit mail send fail: " + failure.getMessage())
                 );
     }
 
