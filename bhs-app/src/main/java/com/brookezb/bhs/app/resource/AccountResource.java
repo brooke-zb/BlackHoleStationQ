@@ -8,7 +8,7 @@ import com.brookezb.bhs.common.entity.User;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.common.util.CookieUtil;
 import com.brookezb.bhs.security.annotation.RequireLogin;
-import com.brookezb.bhs.service.service.UserService;
+import com.brookezb.bhs.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CaffeineCache;

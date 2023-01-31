@@ -2,7 +2,7 @@ package com.brookezb.bhs.app.filter;
 
 import com.brookezb.bhs.common.constant.AppConstants;
 import com.brookezb.bhs.common.util.CookieUtil;
-import com.brookezb.bhs.service.service.UserService;
+import com.brookezb.bhs.service.UserService;
 import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CaffeineCache;

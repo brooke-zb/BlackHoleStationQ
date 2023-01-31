@@ -1,4 +1,4 @@
-package com.brookezb.bhs.service.service;
+package com.brookezb.bhs.service;
 
 import com.brookezb.bhs.common.constant.AppConstants;
 import com.brookezb.bhs.common.dto.ArticleInfoView;
@@ -8,6 +8,8 @@ import com.brookezb.bhs.common.entity.Article;
 import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.service.repository.ArticleRepository;
 import com.brookezb.bhs.service.repository.TagRelationRepository;
+import io.quarkus.cache.Cache;
+import io.quarkus.cache.CacheName;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 
@@ -19,12 +21,13 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class ArticleService {
-
     @Inject
     ArticleRepository articleRepository;
-
     @Inject
     TagRelationRepository tagRelationRepository;
+
+    @CacheName("article-views-cache")
+    Cache cache;
 
     public Uni<ArticleView> findById(Long id) {
         return articleRepository.find("aid", id)
@@ -151,5 +154,9 @@ public class ArticleService {
                         .project(ArticleTimelineView.class).list()
                         .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
                 );
+    }
+
+    public Integer increaseAndGetViews(Long id) {
+        return 1;
     }
 }

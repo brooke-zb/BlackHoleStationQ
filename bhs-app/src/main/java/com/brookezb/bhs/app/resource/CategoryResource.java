@@ -2,7 +2,7 @@ package com.brookezb.bhs.app.resource;
 
 import com.brookezb.bhs.common.entity.Category;
 import com.brookezb.bhs.common.model.R;
-import com.brookezb.bhs.service.service.CategoryService;
+import com.brookezb.bhs.service.CategoryService;
 import io.smallrye.mutiny.Uni;
 
 import javax.inject.Inject;

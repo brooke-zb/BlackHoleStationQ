@@ -1,4 +1,4 @@
-package com.brookezb.bhs.service.service;
+package com.brookezb.bhs.service;
 
 import com.brookezb.bhs.common.dto.PasswordUpdateView;
 import com.brookezb.bhs.common.dto.UserUpdateView;

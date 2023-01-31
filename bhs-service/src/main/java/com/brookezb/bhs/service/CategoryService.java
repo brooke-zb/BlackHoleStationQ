@@ -1,4 +1,4 @@
-package com.brookezb.bhs.service.service;
+package com.brookezb.bhs.service;
 
 import com.brookezb.bhs.common.entity.Category;
 import com.brookezb.bhs.service.repository.CategoryRepository;

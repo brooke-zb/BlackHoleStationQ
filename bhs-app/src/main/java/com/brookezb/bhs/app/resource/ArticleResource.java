@@ -6,7 +6,7 @@ import com.brookezb.bhs.common.dto.ArticleView;
 import com.brookezb.bhs.common.entity.Article;
 import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.common.model.R;
-import com.brookezb.bhs.service.service.ArticleService;
+import com.brookezb.bhs.service.ArticleService;
 import io.smallrye.mutiny.Uni;
 import org.jboss.resteasy.reactive.RestQuery;
 
