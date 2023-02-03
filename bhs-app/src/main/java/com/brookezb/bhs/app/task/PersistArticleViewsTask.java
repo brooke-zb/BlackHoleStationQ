@@ -5,11 +5,14 @@ import io.quarkus.cache.Cache;
 import io.quarkus.cache.CacheName;
 import io.quarkus.cache.CaffeineCache;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Set;
 
 /**
@@ -23,6 +26,10 @@ public class PersistArticleViewsTask {
 
     @CacheName("article-views-cache")
     Cache cache;
+
+    void shutdown(@Observes ShutdownEvent ev) {
+        persistArticleViews().await().indefinitely(); // 应用关闭前等待持久化完成
+    }
 
     @Scheduled(cron = "${bhs.task.cron.persist-article-views:0 0 0 * * ?}")
     Uni<Void> persistArticleViews() {
