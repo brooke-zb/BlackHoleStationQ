@@ -95,4 +95,25 @@ public class ArticleView {
         private Long cid;
         private String name;
     }
+
+    public ArticleView copy() {
+        var copy = new ArticleView(
+                aid,
+                user.getUid(),
+                user.getAvatar(),
+                user.getName(),
+                category.getCid(),
+                category.getName(),
+                title,
+                content,
+                commentabled,
+                appreciatabled,
+                created,
+                modified,
+                views,
+                status
+        );
+        copy.setTags(tags);
+        return copy;
+    }
 }

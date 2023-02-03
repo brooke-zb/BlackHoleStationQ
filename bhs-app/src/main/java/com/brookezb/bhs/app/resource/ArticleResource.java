@@ -8,11 +8,13 @@ import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.service.ArticleService;
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.http.HttpServerRequest;
 import org.jboss.resteasy.reactive.RestQuery;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 @Path("/article")
@@ -21,6 +23,9 @@ import javax.ws.rs.core.MediaType;
 public class ArticleResource {
     @Inject
     ArticleService articleService;
+
+    @Context
+    HttpServerRequest request;
 
     @GET
     @Path("/{id:\\d+}")
@@ -32,6 +37,10 @@ public class ArticleResource {
                     }
                     return Uni.createFrom().item(articleView);
                 })
+                .map(ArticleView::copy)
+                .call(articleView -> articleService.increaseAndGetViews(id, request.remoteAddress().host())
+                        .invoke(viewsInCache -> articleView.setViews(articleView.getViews() + viewsInCache))
+                )
                 .map(R::ok)
                 .onFailure(NoResultException.class).transform(ex -> new NotFoundException("文章不存在或已被删除"));
     }

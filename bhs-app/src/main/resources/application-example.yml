@@ -71,3 +71,7 @@ bhs:
   cookie:
     domain: example.com
     secure: true
+
+  task:
+    cron:
+      persist-article-views: "0 0 0 * * ?"

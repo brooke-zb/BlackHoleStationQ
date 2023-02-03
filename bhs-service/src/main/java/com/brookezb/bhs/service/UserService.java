@@ -14,7 +14,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.security.SecureRandom;
 
 /**
  * @author brooke_zb
@@ -77,8 +76,6 @@ public class UserService {
                 .replaceWithVoid();
     }
 
-    private final SecureRandom random = new SecureRandom();
-
     @CacheInvalidate(cacheName = "user-cache")
     public Uni<Void> updatePassword(@CacheKey Long id, PasswordUpdateView updateView) {
         return userRepository.findById(id)
@@ -87,7 +84,7 @@ public class UserService {
                     if (!BCrypt.checkpw(updateView.getOldPassword(), updateUser.getPassword())) {
                         return Uni.createFrom().failure(new ServiceQueryException("旧密码错误"));
                     }
-                    updateUser.setPassword(BCrypt.hashpw(updateView.getNewPassword(), BCrypt.gensalt(10, random)));
+                    updateUser.setPassword(BCrypt.hashpw(updateView.getNewPassword(), BCrypt.gensalt()));
                     return userRepository.persistAndFlush(updateUser);
                 })
                 .replaceWithVoid();

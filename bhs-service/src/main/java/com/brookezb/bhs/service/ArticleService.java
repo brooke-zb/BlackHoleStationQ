@@ -8,13 +8,15 @@ import com.brookezb.bhs.common.entity.Article;
 import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.service.repository.ArticleRepository;
 import com.brookezb.bhs.service.repository.TagRelationRepository;
-import io.quarkus.cache.Cache;
-import io.quarkus.cache.CacheName;
+import io.quarkus.cache.*;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author brooke_zb
@@ -29,6 +31,7 @@ public class ArticleService {
     @CacheName("article-views-cache")
     Cache cache;
 
+    @CacheResult(cacheName = "article-cache")
     public Uni<ArticleView> findById(Long id) {
         return articleRepository.find("aid", id)
                 .project(ArticleView.class)
@@ -38,70 +41,6 @@ public class ArticleService {
                         .list()
                         .onItem().invoke(articleView::setTags)
                 );
-
-        // 使用panache前的屎山写法
-        /*return factory.withSession(session -> session
-                .createQuery("""
-                        select
-                            a.aid as aid,
-                            u.uid as uid,
-                            u.name as uname,
-                            c.cid as cid,
-                            c.name as cname,
-                            a.title as title,
-                            a.content as content,
-                            a.commentabled as commentabled,
-                            a.appreciatabled as appreciatabled,
-                            a.created as created,
-                            a.modified as modified,
-                            a.views as views,
-                            a.status as status
-                        from Article a
-                            join a.user as u
-                            join a.category as c
-                        where a.aid = ?1
-                        """, Tuple.class)
-                .setParameter(1, id)
-                .getSingleResult()
-                .onItem().ifNotNull().transform(tuple -> ArticleView.builder()
-                        .aid(tuple.get("aid", Long.class))
-                        .user(ArticleUserView.builder()
-                                .uid(tuple.get("uid", Long.class))
-                                .name(tuple.get("uname", String.class))
-                                .build())
-                        .category(ArticleCategoryView.builder()
-                                .cid(tuple.get("cid", Long.class))
-                                .name(tuple.get("cname", String.class))
-                                .build())
-                        .title(tuple.get("title", String.class))
-                        .content(tuple.get("content", String.class))
-                        .commentabled(tuple.get("commentabled", Boolean.class))
-                        .appreciatabled(tuple.get("appreciatabled", Boolean.class))
-                        .created(tuple.get("created", LocalDateTime.class))
-                        .modified(tuple.get("modified", LocalDateTime.class))
-                        .views(tuple.get("views", Integer.class))
-                        .status(tuple.get("status", Article.Status.class))
-                        .build()
-                ).call(articleView -> session.createQuery("""
-                                select
-                                    t.tid as tid,
-                                    t.name as name
-                                from Article a
-                                    join a.tags t
-                                where a.aid = ?1
-                                """, Tuple.class)
-                        .setParameter(1, id)
-                        .getResultList()
-                        .onItem().ifNotNull().transform(tags -> tags.stream()
-                                .map(tag -> ArticleTagView.builder()
-                                        .tid(tag.get("tid", Long.class))
-                                        .name(tag.get("name", String.class))
-                                        .build()
-                                ).toList()
-                        ).invoke(articleView::setTags)
-                )
-                .onFailure().recoverWithNull()
-        );*/
     }
 
     public Uni<PageInfo<ArticleInfoView>> findListByCategoryId(Long cid, int page, Article.Status status) {
@@ -113,7 +52,7 @@ public class ArticleService {
         return query.count()
                 .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
                         .project(ArticleInfoView.class).list()
-                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                        .map(articleViewList -> new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList))
                 );
     }
 
@@ -124,7 +63,7 @@ public class ArticleService {
         return query.count()
                 .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
                         .project(ArticleInfoView.class).list()
-                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                        .map(articleViewList -> new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList))
                 );
     }
 
@@ -141,7 +80,7 @@ public class ArticleService {
                 .chain(total -> query.page(queryPage, AppConstants.PAGE_SIZE)
                         .project(Long.class).list()
                         .chain(aids -> articleRepository.find("aid in ?1", aids).project(ArticleInfoView.class).list())
-                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                        .map(articleViewList -> new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList))
                 );
     }
 
@@ -152,11 +91,26 @@ public class ArticleService {
         return query.count()
                 .chain(total -> query.page(queryPage, AppConstants.TIMELINE_SIZE)
                         .project(ArticleTimelineView.class).list()
-                        .chain(articleViewList -> Uni.createFrom().item(new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList)))
+                        .map(articleViewList -> new PageInfo<>(page, AppConstants.PAGE_SIZE, total, articleViewList))
                 );
     }
 
-    public Integer increaseAndGetViews(Long id) {
-        return 1;
+    public Uni<Integer> increaseAndGetViews(Long id, String ip) {
+        var caffeineCache = cache.as(CaffeineCache.class);
+        return caffeineCache.<Long, Set<String>>get(id, _id -> null)
+                .onItem().ifNull().continueWith(() -> {
+                    var ips = ConcurrentHashMap.<String>newKeySet();
+                    caffeineCache.put(id, CompletableFuture.completedFuture(ips));
+                    return ips;
+                })
+                .map(ips -> {
+                    ips.add(ip);
+                    return ips.size();
+                });
+    }
+
+    @CacheInvalidate(cacheName = "article-cache")
+    public Uni<Integer> updateViews(@CacheKey Long id, int views) {
+        return articleRepository.update("views = views + ?1 where aid = ?2", views, id);
     }
 }
