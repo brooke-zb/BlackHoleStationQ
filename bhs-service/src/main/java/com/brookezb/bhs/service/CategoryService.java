@@ -16,6 +16,11 @@ public class CategoryService {
     @Inject
     CategoryRepository categoryRepository;
 
+    public Uni<Category> findById(Long id) {
+        return categoryRepository.find("cid", id)
+                .singleResult();
+    }
+
     public Uni<List<Category>> findAll() {
         return categoryRepository.findAll().list();
     }
