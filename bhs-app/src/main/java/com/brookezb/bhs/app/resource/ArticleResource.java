@@ -13,6 +13,7 @@ import org.jboss.resteasy.reactive.RestQuery;
 
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import javax.validation.constraints.Min;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -47,25 +48,25 @@ public class ArticleResource {
 
     @GET
     @Path("/category/{cid:\\d+}")
-    public Uni<R<PageInfo<ArticleInfoView>>> findListByCategoryId(Long cid, @RestQuery @DefaultValue("1") int page) {
+    public Uni<R<PageInfo<ArticleInfoView>>> findListByCategoryId(Long cid, @RestQuery @DefaultValue("1") @Min(value = 1, message = "页数不能小于1") int page) {
         return articleService.findListByCategoryId(cid, page, Article.Status.PUBLISHED).map(R::ok);
     }
 
     @GET
     @Path("/user/{uid:\\d+}")
-    public Uni<R<PageInfo<ArticleInfoView>>> findListByUserId(Long uid, @RestQuery @DefaultValue("1") int page) {
+    public Uni<R<PageInfo<ArticleInfoView>>> findListByUserId(Long uid, @RestQuery @DefaultValue("1") @Min(value = 1, message = "页数不能小于1") int page) {
         return articleService.findListByUserId(uid, page, Article.Status.PUBLISHED).map(R::ok);
     }
 
     @GET
     @Path("/tag/{tag}")
-    public Uni<R<PageInfo<ArticleInfoView>>> findListByTag(String tag, @RestQuery @DefaultValue("1") int page) {
+    public Uni<R<PageInfo<ArticleInfoView>>> findListByTag(String tag, @RestQuery @DefaultValue("1") @Min(value = 1, message = "页数不能小于1") int page) {
         return articleService.findListByTag(tag, page, Article.Status.PUBLISHED).map(R::ok);
     }
 
     @GET
     @Path("/timeline")
-    public Uni<R<PageInfo<ArticleTimelineView>>> findListByTimeline(@RestQuery @DefaultValue("1") int page) {
+    public Uni<R<PageInfo<ArticleTimelineView>>> findListByTimeline(@RestQuery @DefaultValue("1") @Min(value = 1, message = "页数不能小于1") int page) {
         return articleService.findListByTimeline(page).map(R::ok);
     }
 }

@@ -1,6 +1,7 @@
 package com.brookezb.bhs.app.resource;
 
 import com.brookezb.bhs.common.entity.Category;
+import com.brookezb.bhs.common.model.PageInfo;
 import com.brookezb.bhs.common.model.R;
 import com.brookezb.bhs.service.CategoryService;
 import io.smallrye.mutiny.Uni;
@@ -23,7 +24,7 @@ public class CategoryResource {
 
     @GET
     @Path("/{id:\\d+}")
-    public Uni<R<Category>> getCategory(Long id) {
+    public Uni<R<Category>> findById(Long id) {
         return categoryService.findById(id)
                 .map(R::ok)
                 .onFailure(NoResultException.class).transform(ex -> new NotFoundException("未找到该分类"));
