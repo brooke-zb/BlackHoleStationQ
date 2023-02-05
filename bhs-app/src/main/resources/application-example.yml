@@ -67,6 +67,7 @@ bhs:
     admin-mail: admin@example.com
     reply-subject: "[example]reply notice"
     audit-subject: "[example]audit notice"
+    blog-link: https://blog.example.com
 
   cookie:
     domain: example.com

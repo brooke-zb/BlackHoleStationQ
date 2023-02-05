@@ -30,11 +30,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.brookezb</groupId>
-            <artifactId>bhs-mail</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-reactive</artifactId>
         </dependency>

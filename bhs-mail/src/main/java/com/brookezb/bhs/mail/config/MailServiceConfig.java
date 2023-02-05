@@ -34,4 +34,7 @@ public interface MailServiceConfig {
     @WithName("audit-content")
     @WithDefault(MailConstants.Audit.CONTENT)
     String auditContent();
+
+    @WithName("blog-link")
+    String blogLink();
 }

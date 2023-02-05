@@ -21,12 +21,12 @@ public class MailService {
     @Location("mail")
     MailTemplate template;
 
-    public void sendReplyMail(String to, String nickname, String link) {
+    public void sendReplyMail(String to, String nickname, Long articleId) {
         String cleanNickname = nickname.replace("<", "&lt;").replace(">", "&gt;");
         template.to(to).subject(config.replySubject())
                 .data("title", config.replyTitle())
                 .data("content", String.format(config.replyContentFormat(), cleanNickname))
-                .data("link", link)
+                .data("link", config.blogLink() + "/articles/" + articleId)
                 .data("admin", config.adminMail())
                 .send().subscribe().with(
                         ignored -> log.info("reply mail send success"),
@@ -34,11 +34,11 @@ public class MailService {
                 );
     }
 
-    public void sendAuditMail(String link) {
+    public void sendAuditMail() {
         template.to(config.adminMail()).subject(config.auditSubject())
                 .data("title", config.auditTitle())
                 .data("content", config.auditContent())
-                .data("link", link)
+                .data("link", config.blogLink() + "/admin/comments")
                 .data("admin", config.adminMail())
                 .send().subscribe().with(
                         ignored -> log.info("audit mail send success"),
