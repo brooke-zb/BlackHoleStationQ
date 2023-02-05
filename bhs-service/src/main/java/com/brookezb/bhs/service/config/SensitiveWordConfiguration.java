@@ -1,4 +1,4 @@
-package com.brookezb.bhs.app.config;
+package com.brookezb.bhs.service.config;
 
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import io.quarkus.runtime.Startup;
