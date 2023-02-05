@@ -16,4 +16,6 @@ public class AppConstants {
 
     public static final String CONTEXT_USER_KEY = "bhs.login.user";
     public static final String CONTEXT_SECURITY_CHECKED_KEY = "bhs.security.checked";
+
+    public static final int MAX_COMMENT_LENGTH = 300;
 }
