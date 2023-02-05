@@ -21,7 +21,7 @@ public class Article {
      * 文章id
      */
     @Id
-    @GeneratedValue(generator = "snowflake", strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(generator = "snowflake", strategy = GenerationType.IDENTITY)
     @GenericGenerator(name = "snowflake", strategy = "com.brookezb.bhs.common.util.SnowflakeIdGenerator")
     private Long aid;
 

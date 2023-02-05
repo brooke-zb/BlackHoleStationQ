@@ -23,7 +23,7 @@ public abstract class AbstractComment {
      * 评论id
      */
     @Id
-    @GeneratedValue(generator = "snowflake")
+    @GeneratedValue(generator = "snowflake", strategy = GenerationType.IDENTITY)
     private Long coid;
 
     /**
